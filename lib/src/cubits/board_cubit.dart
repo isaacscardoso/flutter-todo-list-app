@@ -2,11 +2,22 @@ import 'package:bloc/bloc.dart';
 
 import '../models/task.dart';
 import '../states/board_state.dart';
+import '../repositories/board_repository.dart';
 
 final class BoardCubit extends Cubit<BoardState> {
-  BoardCubit() : super(EmptyBoardState());
+  final BoardRepository repository;
 
-  Future<void> fetchTasks() async {}
+  BoardCubit({required this.repository}) : super(EmptyBoardState());
+
+  Future<void> fetchTasks() async {
+    emit(LoadingBoardState());
+    try {
+      final tasks = await repository.fetch();
+      emit(GettedTasksBoardState(tasks: tasks));
+    } catch (e) {
+      emit(FailureBoardState(message: 'Error when loading task data!'));
+    }
+  }
 
   Future<void> addTask(Task task) async {}
 
