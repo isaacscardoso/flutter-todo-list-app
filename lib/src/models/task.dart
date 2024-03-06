@@ -13,4 +13,16 @@ final class Task extends Equatable {
 
   @override
   List<Object?> get props => [id, description, isChecked];
+
+  Task copyWith({
+    int? id,
+    String? description,
+    bool? isChecked,
+  }) {
+    return Task(
+      id: id ?? this.id,
+      description: description ?? this.description,
+      isChecked: isChecked ?? this.isChecked,
+    );
+  }
 }
