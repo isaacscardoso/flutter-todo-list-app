@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/material.dart';
 
 import '../models/task.dart';
 import '../states/board_state.dart';
@@ -19,9 +20,40 @@ final class BoardCubit extends Cubit<BoardState> {
     }
   }
 
-  Future<void> addTask(Task task) async {}
+  Future<void> addTask(Task task) async {
+    final state = this.state;
+    if (state is! GettedTasksBoardState) return;
 
-  Future<void> deleteTask(Task task) async {}
+    final tasks = state.tasks.toList();
+    tasks.add(task);
+
+    try {
+      await repository.update(tasks);
+      emit(GettedTasksBoardState(tasks: tasks));
+    } catch (e) {
+      emit(FailureBoardState(message: 'Error when adding task data!'));
+    }
+  }
+
+  Future<void> deleteTask(Task task) async {
+    final state = this.state;
+    if (state is! GettedTasksBoardState) return;
+
+    final tasks = state.tasks.toList();
+    tasks.remove(task);
+
+    try {
+      await repository.update(tasks);
+      emit(GettedTasksBoardState(tasks: tasks));
+    } catch (e) {
+      emit(FailureBoardState(message: 'Error when deleting task data!'));
+    }
+  }
 
   Future<void> checkTask(Task task) async {}
+
+  @visibleForTesting
+  void addTasksForTest(List<Task> tasks) {
+    emit(GettedTasksBoardState(tasks: tasks));
+  }
 }
