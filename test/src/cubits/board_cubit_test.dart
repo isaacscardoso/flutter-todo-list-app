@@ -19,15 +19,21 @@ void main() {
     task = const Task(id: 1, description: '', isChecked: false);
   });
 
-  tearDown(() => reset(repository));
+  tearDown(() {
+    reset(repository);
+    systemUnderTest.close();
+  });
 
   group('fetchTasks', () {
-    test('Should fetch all tasks.', () async {
+    test('Should fetch all tasks successfully.', () async {
       when(() => repository.fetch()).thenAnswer((_) async => []);
 
       expect(
         systemUnderTest.stream,
-        emitsInOrder([isA<LoadingBoardState>(), isA<GettedTasksBoardState>()]),
+        emitsInOrder([
+          isA<LoadingBoardState>(),
+          isA<GettedTasksBoardState>(),
+        ]),
       );
 
       await systemUnderTest.fetchTasks();
@@ -38,7 +44,10 @@ void main() {
 
       expect(
         systemUnderTest.stream,
-        emitsInOrder([isA<LoadingBoardState>(), isA<FailureBoardState>()]),
+        emitsInOrder([
+          isA<LoadingBoardState>(),
+          isA<FailureBoardState>(),
+        ]),
       );
 
       await systemUnderTest.fetchTasks();
@@ -46,7 +55,7 @@ void main() {
   });
 
   group('addTask', () {
-    test('Should add a task.', () async {
+    test('Should add a task successfully.', () async {
       when(() => repository.update(any())).thenAnswer((_) async => []);
 
       expect(
@@ -74,7 +83,11 @@ void main() {
   });
 
   group('deleteTask', () {
-    test('Should delete a task.', () async {
+    setUp(() {
+      systemUnderTest.addTasksForTest([task]);
+    });
+
+    test('Should delete a task successfully.', () async {
       when(() => repository.update(any())).thenAnswer((_) async => []);
 
       expect(
@@ -82,14 +95,13 @@ void main() {
         emitsInOrder([isA<GettedTasksBoardState>()]),
       );
 
-      systemUnderTest.addTasksForTest([task]);
-      var state = systemUnderTest.state as GettedTasksBoardState;
+      final currentState = systemUnderTest.state as GettedTasksBoardState;
+      expect(currentState.tasks.length, equals(1));
 
-      expect(state.tasks.length, equals(1));
       await systemUnderTest.deleteTask(task);
 
-      state = systemUnderTest.state as GettedTasksBoardState;
-      expect(state.tasks.length, equals(0));
+      final newState = systemUnderTest.state as GettedTasksBoardState;
+      expect(newState.tasks.length, equals(0));
     });
 
     test('Should throw an exception when an error occurs.', () async {
@@ -101,6 +113,42 @@ void main() {
       );
 
       await systemUnderTest.deleteTask(task);
+    });
+  });
+
+  group('checkTask', () {
+    setUp(() {
+      systemUnderTest.addTasksForTest([task]);
+    });
+
+    test('Should check a task successfully.', () async {
+      when(() => repository.update(any())).thenAnswer((_) async => []);
+
+      expect(
+        systemUnderTest.stream,
+        emitsInOrder([isA<GettedTasksBoardState>()]),
+      );
+
+      final currentState = systemUnderTest.state as GettedTasksBoardState;
+      expect(currentState.tasks.length, equals(1));
+      expect(currentState.tasks.first.isChecked, isFalse);
+
+      await systemUnderTest.checkTask(task);
+
+      final newState = systemUnderTest.state as GettedTasksBoardState;
+      expect(newState.tasks.length, equals(1));
+      expect(newState.tasks.first.isChecked, isTrue);
+    });
+
+    test('Should throw an exception when an error occurs.', () async {
+      when(() => repository.update(any())).thenThrow(Exception('Error'));
+
+      expect(
+        systemUnderTest.stream,
+        emitsInOrder([isA<FailureBoardState>()]),
+      );
+
+      await systemUnderTest.checkTask(task);
     });
   });
 }
