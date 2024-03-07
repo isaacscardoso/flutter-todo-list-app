@@ -50,7 +50,21 @@ final class BoardCubit extends Cubit<BoardState> {
     }
   }
 
-  Future<void> checkTask(Task task) async {}
+  Future<void> checkTask(Task task) async {
+    final state = this.state;
+    if (state is! GettedTasksBoardState) return;
+
+    final tasks = state.tasks.toList();
+    final index = tasks.indexOf(task);
+    tasks[index] = task.copyWith(isChecked: !task.isChecked);
+
+    try {
+      await repository.update(tasks);
+      emit(GettedTasksBoardState(tasks: tasks));
+    } catch (e) {
+      emit(FailureBoardState(message: 'Error when checking a task!'));
+    }
+  }
 
   @visibleForTesting
   void addTasksForTest(List<Task> tasks) {
