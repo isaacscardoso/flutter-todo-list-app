@@ -37,8 +37,6 @@ doc/api/
 ### Flutter ###
 # Flutter/Dart/Pub related
 **/doc/api/
-.fvm/flutter_sdk
-.fvm/versions
 .pub-cache/
 .pub/
 coverage/
@@ -244,3 +242,6 @@ xcuserdata/
 **/xcshareddata/WorkspaceSettings.xcsettings
 
 # End of https://www.toptal.com/developers/gitignore/api/dart,flutter,visualstudiocode,phpstorm,xcode
+
+# FVM Version Cache
+.fvm/
