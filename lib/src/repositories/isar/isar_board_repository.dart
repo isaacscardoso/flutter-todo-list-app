@@ -1,6 +1,7 @@
 import '../../models/task.dart';
 import '../board_repository.dart';
 import './isar_datasource.dart';
+import 'task_model.dart';
 
 final class IsarBoardRepository implements BoardRepository {
   final IsarDatasource datasource;
@@ -22,6 +23,17 @@ final class IsarBoardRepository implements BoardRepository {
 
   @override
   Future<List<Task>> update(List<Task> tasks) async {
-    throw UnimplementedError();
+    final models = tasks.map((e) {
+      final model = TaskModel()
+        ..isCompleted = e.isCompleted
+        ..description = e.description;
+
+      if (e.id > 0) model.id = e.id;
+      return model;
+    }).toList();
+
+    await datasource.deleteAllTasks();
+    await datasource.putAllTasks(models);
+    return tasks;
   }
 }
