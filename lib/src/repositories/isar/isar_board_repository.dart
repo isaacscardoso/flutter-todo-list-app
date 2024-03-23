@@ -9,7 +9,15 @@ final class IsarBoardRepository implements BoardRepository {
 
   @override
   Future<List<Task>> fetch() async {
-    throw UnimplementedError();
+    final models = await datasource.getTasks();
+    final tasks = models.map((e) {
+      return Task(
+        id: e.id,
+        description: e.description,
+        isCompleted: e.isCompleted,
+      );
+    }).toList();
+    return tasks;
   }
 
   @override
