@@ -10,6 +10,22 @@ final class BoardCubit extends Cubit<BoardState> {
 
   BoardCubit({required this.repository}) : super(EmptyBoardState());
 
+  List<Task>? get _tasks {
+    final state = this.state;
+    if (state is! GettedTasksBoardState) return null;
+
+    return state.tasks.toList();
+  }
+
+  Future<void> _emitUpdatedTasks(List<Task> tasks, String requesterDesc) async {
+    try {
+      await repository.update(tasks);
+      emit(GettedTasksBoardState(tasks: tasks));
+    } catch (e) {
+      emit(FailureBoardState(message: 'Error when $requesterDesc task data!'));
+    }
+  }
+
   Future<void> fetchTasks() async {
     emit(LoadingBoardState());
     try {
@@ -21,49 +37,35 @@ final class BoardCubit extends Cubit<BoardState> {
   }
 
   Future<void> addTask(Task task) async {
-    final state = this.state;
-    if (state is! GettedTasksBoardState) return;
+    final tasks = _tasks;
 
-    final tasks = state.tasks.toList();
+    if (tasks == null) return;
+
     tasks.add(task);
 
-    try {
-      await repository.update(tasks);
-      emit(GettedTasksBoardState(tasks: tasks));
-    } catch (e) {
-      emit(FailureBoardState(message: 'Error when adding task data!'));
-    }
+    await _emitUpdatedTasks(tasks, 'adding');
   }
 
   Future<void> deleteTask(Task task) async {
-    final state = this.state;
-    if (state is! GettedTasksBoardState) return;
+    final tasks = _tasks;
 
-    final tasks = state.tasks.toList();
+    if (tasks == null) return;
+
     tasks.remove(task);
 
-    try {
-      await repository.update(tasks);
-      emit(GettedTasksBoardState(tasks: tasks));
-    } catch (e) {
-      emit(FailureBoardState(message: 'Error when deleting task data!'));
-    }
+    await _emitUpdatedTasks(tasks, 'deleting');
   }
 
-  Future<void> checkTask(Task task) async {
-    final state = this.state;
-    if (state is! GettedTasksBoardState) return;
+  Future<void> toggleTaskCompletion(Task task) async {
+    final tasks = _tasks;
 
-    final tasks = state.tasks.toList();
+    if (tasks == null) return;
+
     final index = tasks.indexOf(task);
-    tasks[index] = task.copyWith(isChecked: !task.isChecked);
 
-    try {
-      await repository.update(tasks);
-      emit(GettedTasksBoardState(tasks: tasks));
-    } catch (e) {
-      emit(FailureBoardState(message: 'Error when checking a task!'));
-    }
+    tasks[index] = task.copyWith(isCompleted: !task.isCompleted);
+
+    await _emitUpdatedTasks(tasks, 'toggling completion');
   }
 
   @visibleForTesting
