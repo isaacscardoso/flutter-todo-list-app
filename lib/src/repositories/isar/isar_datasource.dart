@@ -3,7 +3,7 @@ import 'package:path_provider/path_provider.dart';
 
 import './task_model.dart';
 
-final class IsarDatasource {
+class IsarDatasource {
   Isar? _isar;
 
   Future<Isar> _getInstance() async {
