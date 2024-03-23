@@ -48,12 +48,7 @@ int _taskModelEstimateSize(
   Map<Type, List<int>> allOffsets,
 ) {
   var bytesCount = offsets.last;
-  {
-    final value = object.description;
-    if (value != null) {
-      bytesCount += 3 + value.length * 3;
-    }
-  }
+  bytesCount += 3 + object.description.length * 3;
   return bytesCount;
 }
 
@@ -74,9 +69,9 @@ TaskModel _taskModelDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = TaskModel();
-  object.description = reader.readStringOrNull(offsets[0]);
+  object.description = reader.readString(offsets[0]);
   object.id = id;
-  object.isCompleted = reader.readBoolOrNull(offsets[1]);
+  object.isCompleted = reader.readBool(offsets[1]);
   return object;
 }
 
@@ -88,9 +83,9 @@ P _taskModelDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readBoolOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
@@ -187,26 +182,8 @@ extension TaskModelQueryWhere
 
 extension TaskModelQueryFilter
     on QueryBuilder<TaskModel, TaskModel, QFilterCondition> {
-  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition>
-      descriptionIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'description',
-      ));
-    });
-  }
-
-  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition>
-      descriptionIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'description',
-      ));
-    });
-  }
-
   QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> descriptionEqualTo(
-    String? value, {
+    String value, {
     bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
@@ -220,7 +197,7 @@ extension TaskModelQueryFilter
 
   QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition>
       descriptionGreaterThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -235,7 +212,7 @@ extension TaskModelQueryFilter
   }
 
   QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> descriptionLessThan(
-    String? value, {
+    String value, {
     bool include = false,
     bool caseSensitive = true,
   }) {
@@ -250,8 +227,8 @@ extension TaskModelQueryFilter
   }
 
   QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> descriptionBetween(
-    String? lower,
-    String? upper, {
+    String lower,
+    String upper, {
     bool includeLower = true,
     bool includeUpper = true,
     bool caseSensitive = true,
@@ -392,26 +369,8 @@ extension TaskModelQueryFilter
     });
   }
 
-  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition>
-      isCompletedIsNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNull(
-        property: r'isCompleted',
-      ));
-    });
-  }
-
-  QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition>
-      isCompletedIsNotNull() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(const FilterCondition.isNotNull(
-        property: r'isCompleted',
-      ));
-    });
-  }
-
   QueryBuilder<TaskModel, TaskModel, QAfterFilterCondition> isCompletedEqualTo(
-      bool? value) {
+      bool value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'isCompleted',
@@ -516,13 +475,13 @@ extension TaskModelQueryProperty
     });
   }
 
-  QueryBuilder<TaskModel, String?, QQueryOperations> descriptionProperty() {
+  QueryBuilder<TaskModel, String, QQueryOperations> descriptionProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'description');
     });
   }
 
-  QueryBuilder<TaskModel, bool?, QQueryOperations> isCompletedProperty() {
+  QueryBuilder<TaskModel, bool, QQueryOperations> isCompletedProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isCompleted');
     });
