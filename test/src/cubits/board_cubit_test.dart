@@ -16,7 +16,7 @@ void main() {
   setUp(() {
     repository = BoardRepositoryMocked();
     systemUnderTest = BoardCubit(repository: repository);
-    task = const Task(id: 1, description: '', isChecked: false);
+    task = const Task(id: 1, description: '', isCompleted: false);
   });
 
   tearDown(() {
@@ -131,13 +131,13 @@ void main() {
 
       final currentState = systemUnderTest.state as GettedTasksBoardState;
       expect(currentState.tasks.length, equals(1));
-      expect(currentState.tasks.first.isChecked, isFalse);
+      expect(currentState.tasks.first.isCompleted, isFalse);
 
-      await systemUnderTest.checkTask(task);
+      await systemUnderTest.toggleTaskCompletion(task);
 
       final newState = systemUnderTest.state as GettedTasksBoardState;
       expect(newState.tasks.length, equals(1));
-      expect(newState.tasks.first.isChecked, isTrue);
+      expect(newState.tasks.first.isCompleted, isTrue);
     });
 
     test('Should throw an exception when an error occurs.', () async {
@@ -148,7 +148,7 @@ void main() {
         emitsInOrder([isA<FailureBoardState>()]),
       );
 
-      await systemUnderTest.checkTask(task);
+      await systemUnderTest.toggleTaskCompletion(task);
     });
   });
 }
