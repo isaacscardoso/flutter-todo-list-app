@@ -18,12 +18,33 @@ void main() {
     cubit = BoardCubit(repository: repository);
   });
 
-  testWidgets('board page ...', (tester) async {
+  testWidgets('Should find a list of tasks on the BoardPage.', (tester) async {
+    when(() => repository.fetch()).thenAnswer((_) async => []);
+
     await tester.pumpWidget(
       BlocProvider.value(
         value: cubit,
         child: const MaterialApp(home: BoardPage()),
       ),
     );
+
+    expect(find.byKey(const Key('EmptyState')), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('GettedState')), findsOneWidget);
+  });
+
+  testWidgets('Should throw an exception on the BoardPage.', (tester) async {
+    when(() => repository.fetch()).thenThrow((_) async => Exception('Error'));
+
+    await tester.pumpWidget(
+      BlocProvider.value(
+        value: cubit,
+        child: const MaterialApp(home: BoardPage()),
+      ),
+    );
+
+    expect(find.byKey(const Key('EmptyState')), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('FailureState')), findsOneWidget);
   });
 }
