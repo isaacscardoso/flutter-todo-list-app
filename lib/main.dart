@@ -7,7 +7,7 @@ import 'src/database/objectbox_datasource.dart';
 import 'src/cubits/board_cubit.dart';
 import 'src/pages/board_page.dart';
 
-late ObjectBoxDatasource objectbox;
+late final ObjectBoxDatasource objectbox;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

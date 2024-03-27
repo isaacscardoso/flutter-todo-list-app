@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubits/board_cubit.dart';
+import '../models/task.dart';
 import '../states/board_state.dart';
 
 class BoardPage extends StatefulWidget {
@@ -41,10 +42,13 @@ class _BoardPageState extends State<BoardPage> {
       itemCount: tasks.length,
       itemBuilder: (context, index) {
         final task = tasks[index];
-        return CheckboxListTile(
-          value: task.isCompleted,
-          title: Text(task.description),
-          onChanged: (value) => cubit.toggleTaskCompletion(task),
+        return GestureDetector(
+          onLongPress: () => cubit.deleteTask(task),
+          child: CheckboxListTile(
+            value: task.isCompleted,
+            title: Text(task.description),
+            onChanged: (value) => cubit.toggleTaskCompletion(task),
+          ),
         );
       },
     );
@@ -70,6 +74,39 @@ class _BoardPageState extends State<BoardPage> {
     };
   }
 
+  void addTaskDialog() {
+    String description = '';
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog.adaptive(
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Close'),
+            ),
+            TextButton(
+              onPressed: () {
+                final task = Task(
+                  id: -1,
+                  description: description,
+                  isCompleted: false,
+                );
+                context.read<BoardCubit>().addTask(task);
+                Navigator.pop(context);
+              },
+              child: const Text('Add'),
+            ),
+          ],
+          title: const Text('Adding a Task...'),
+          content: TextField(
+            onChanged: (value) => description = value,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cubit = context.watch<BoardCubit>();
@@ -81,6 +118,10 @@ class _BoardPageState extends State<BoardPage> {
         title: const Text('Tasks'),
       ),
       body: body,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => addTaskDialog(),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
