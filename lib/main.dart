@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'src/repositories/objectbox/object_box_board_repository.dart';
+import 'src/repositories/board_repository.dart';
+import 'src/database/objectbox_datasource.dart';
 import 'src/cubits/board_cubit.dart';
 import 'src/pages/board_page.dart';
-import 'src/repositories/board_repository.dart';
-import 'src/repositories/isar/isar_exporteds.dart';
 
-void main() {
+late ObjectBoxDatasource objectbox;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  objectbox = await ObjectBoxDatasource.create();
+
   runApp(const AppWidget());
 }
 
@@ -18,10 +25,10 @@ class AppWidget extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         RepositoryProvider(
-          create: (ctx) => IsarDatasource(),
+          create: (ctx) => objectbox,
         ),
         RepositoryProvider<BoardRepository>(
-          create: (ctx) => IsarBoardRepository(datasource: ctx.read()),
+          create: (ctx) => ObjectBoxBoardRepository(datasource: ctx.read()),
         ),
         BlocProvider(
           create: (ctx) => BoardCubit(repository: ctx.read()),
